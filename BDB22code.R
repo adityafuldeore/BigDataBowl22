@@ -25,7 +25,7 @@ distance_disp <- function(x, y) {
   return(dist)
 }
 
-#Getting Gunners/vVses
+#Getting Gunners/vises
 gunnerNum <- function(g) {
   G1 <- str_split(str_split(g, " ")[[1]], ";")
   G <- c()
@@ -77,7 +77,7 @@ getDisplacement <- function(tracking_all, returner_info) {
   
 }
 
-#getting return yards periodically - maybe not used? - or only use for Peppers example
+#getting return yards periodically
 periodicRetYd <- function(returner_info) {
   
   ret_yd <- c()
@@ -103,7 +103,6 @@ your_punt_returner <- function(gmID, plyID, retID, data) {
 #add x and y displacement, as well as total displacement from returner to given tracking data
 disps_to_ret <- function(trck_all, ret_info, punt_player) {
   disp_ret <- getDisplacement(trck_all, ret_info)
-  #ret_yds <- periodicRetYd(ret_info)
   dist_retdisp <- distance_disp(disp_ret$tot_xdisp, disp_ret$tot_ydisp) #total distance to returner
   disp_ret <- cbind(disp_ret, dist_retdisp) #all players involved in return's displacement from returner (x,y,total distance)
   return(disp_ret)
@@ -261,25 +260,14 @@ for(r in 1:nrow(all_punts2)) {
     }
   }
 }
-#can seperate by closest returner, all returners?? idk - get average disp when fair catch, muffed, etc.
-#measure by if player hit this level of displacement or not
-mean(retyds5, na.rm = T) #5.215232
-sd(retyds5, na.rm = T)
-mean(retyds15, na.rm = T) #9.384216
-sd(retyds15, na.rm = T)
-mean(retyds30, na.rm = T) #13.09915
-sd(retyds30, na.rm = T)
-mean(all_punts2$kickReturnYardage) #9.463415
-mean(ret_avgretdisp, na.rm = T) #10.76788
-mean(pryoe3, na.rm = T) #-2.110956
-mean(pryoe2, na.rm = T) #-0.1261381
-mean(pryoe1, na.rm = T) #1.512261
-
-
-#scale the stat: 
-1/ (all_punts2[2,]$kickLength - 30) #1st segment
-1 + ((1/(30-15)) * (closest_g$dist_retdisp-15)) #second segment
-2 + ((1/(15-5)) * (closest_g$dist_retdisp-5)) #third segment
+mean(retyds5, na.rm = T) #5.234266
+mean(retyds15, na.rm = T) #9.408497
+mean(retyds30, na.rm = T) #13.20175
+mean(all_punts2$kickReturnYardage) #9.525846
+mean(ret_avgretdisp, na.rm = T) #10.84204
+mean(pryoe3, na.rm = T) #-2.170885
+mean(pryoe2, na.rm = T) #-0.1672624
+mean(pryoe1, na.rm = T) #1.57493
 
 #didn't use downed or out of bounds or touchback - too much punter variability, less gunner
 all_other <- all_merged %>% filter(specialTeamsPlayType == "Punt") %>% filter(specialTeamsResult != "Return") %>% 
@@ -289,7 +277,7 @@ all_other <- all_merged %>% filter(specialTeamsPlayType == "Punt") %>% filter(sp
   filter(is.na(penaltyCodes))
 
 pnt_fcmfd <- df_tracking %>% filter(event == "fair_catch" | event == "punt_muffed")
-#change fair catch to 1 sec prior to fair catch??
+
 fc_avgretdisp <- c()
 mfd_avgretdisp <- c()
 for(j in 1:nrow(all_other)) {
@@ -317,13 +305,9 @@ for(j in 1:nrow(all_other)) {
 }
 mean(fc_avgretdisp, na.rm = T) #4.073713
 mean(mfd_avgretdisp, na.rm = T) #7.450931
-#proximity of gunner to returner - factor in hangtime, punt distance - fair catch = full pts - downed/muffed - how? - do seperate analyses? - how close is gunner on fair catch/downed/muffed punts? - something like average ret yds over expected prevented or allowed?
-#if fair catch, and gunner within x yards, full points? if muffed/downed, and gunner within x yards, full points?
-# - maybe proximity score seperate, chaos score for returns alltogether
-#sure we want to limit kick length?
 
 
-#first contact - filter all first_contacts - if any is gunner...- what should length away be for first contact
+#first contact - gunner withing 1.5 yds at first contact
 frst_cntct <- df_tracking %>% filter(event == "first_contact")
 
 pryoe_fc <- c()
@@ -349,14 +333,12 @@ for(f in 1:nrow(all_punts2)){
     }
   }
 }
-mean(fc_retyds, na.rm = T) 
-mean(pryoe_fc, na.rm = T) 
-mean(nonfc_retyds, na.rm = T)
-mean(pryoe_nonfc, na.rm = T)
-#explain why used 1.5
+mean(fc_retyds, na.rm = T) #7.082935
+mean(pryoe_fc, na.rm = T) #-1.692868
+mean(nonfc_retyds, na.rm = T) #10.27163
+mean(pryoe_nonfc, na.rm = T) #0.3440149
 
-#tackle - filter all tackles - if any is gunner...
-# - how to do fumbles? missed tackles? - no tackle score if not tackling
+#tackle (hit)
 tkl_num <- function(tkl) {
   t1 <- str_split(str_split(tkl, " ")[[1]], ";")
   t <- c()
@@ -420,20 +402,17 @@ for(s in 1:nrow(all_punts2)) {
   }
   
 }
-mean(gtckl_retyds, na.rm = T) #5.510721
-mean(gasttckl_retyds, na.rm = T) #5.789474
-mean(gmsdtckl_retyds, na.rm = T) #10.3169
-mean(avg_retdisp_tkl, na.rm = T) #10.94863
-mean(avg_retdisp_asttkl, na.rm = T) #13.1506
-mean(avg_retdisp_msdtkl, na.rm = T) #10.44276
-mean(pryoe_tkl, na.rm = T) #-2.734773
-mean(pryoe_asttkl, na.rm = T) #-3.622784
-mean(pryoe_msdtkl, na.rm = T) # 0.3006439
-#missed tackle = close enough
+mean(gtckl_retyds, na.rm = T) #5.605634
+mean(gasttckl_retyds, na.rm = T) #5.917808
+mean(gmsdtckl_retyds, na.rm = T) #10.34444
+mean(avg_retdisp_tkl, na.rm = T) #11.07025
+mean(avg_retdisp_asttkl, na.rm = T) #13.02004
+mean(avg_retdisp_msdtkl, na.rm = T) #10.5203
+mean(pryoe_tkl, na.rm = T) #-2.733581
+mean(pryoe_asttkl, na.rm = T) # -3.698909
+mean(pryoe_msdtkl, na.rm = T) #0.2542726
 
-#angle change of returner - tough - angle changed whenever gunner within 5 yards? - do we even use this or too much confounding to only credit this to gunners - just have this as section?
-#orientation - how returner jives - fakes or moves drastically
-#10 obs after punt_rec2 of kick returner
+#angle change of returner or if returner's speed is 0.5 more or less one sec after punt received
 post_pr <- df_tracking[which(df_tracking$event == "punt_received") + 10,]
 
 angl_retdisp <- c()
@@ -480,7 +459,7 @@ for(z in 1:nrow(all_punts2)) {
     }
   }
   
-  #change in angle between 
+  #change in angle between orientations at punt reception, one second after
 }
 mean(angl_recyds, na.rm = T) #7.952614
 mean(strt_recyds, na.rm = T) #10.64235
@@ -488,10 +467,6 @@ mean(pryoe_angl, na.rm = T) #-0.5715652
 mean(pryoe_strt, na.rm = T) #0.08179736
 mean(angl_retdisp, na.rm = T) #8.474356
 mean(strt_retdisp, na.rm = T) #10.02699
-#orientation - want to see if direction player faces changes
-
-
-#MAYBE MODEL SIGNIFICANCE OF THESE FACTORS ON RET YDS?? ~within ydg + angle change + tackle/missed/ast(Factor) + first contact
 
 pr_modset <- c()
 for(a in 1:nrow(all_punts2)) {
@@ -525,26 +500,30 @@ for(a in 1:nrow(all_punts2)) {
       
       angleScore <- ifelse(closest_def_all$displayName == closest_g_all$displayName & closest_g_all$dist_retdisp <= 30,
         ifelse((abs(r_info_all2$o - r_info_all$o) >= 45 & abs(r_info_all2$o - r_info_all$o) <= 315) | 
-          ((r_info_a2$s - r_info_a$s) <= 0.5), 1, 0), 0) #closest gunner being closest defender?
+          ((r_info_all2$s - r_info_all$s) <= 0.5), 1, 0), 0) #closest gunner being closest defender?
       
       #the first tackle type - if related to the gunner - what gunner did first - missed a tackle, completed, assisted
       tklScore <- c()
       if(!is.na(all_punts2[a,]$missedTackler)) {
         for(n in 1:length(tkl_num(all_punts2[a,]$missedTackler))) {
           if(tkl_num(all_punts2[a,]$missedTackler)[n] == closest_g_all$jerseyNumber) { #%in% gnrs
-            tklScore <- 1
+            tklScore <- 0
           } 
         }
       }
-      if(is.null(tklScore)) {
-        if(!is.na(all_punts2[a,]$tackler)) {
-          if(tkl_num(all_punts2[a,]$tackler) == closest_g_all$jerseyNumber) { #%in% gnrs
-            tklScore <- 3
-          } else if(!is.na(all_punts2[a,]$assistTackler)) {
-            if(tkl_num(all_punts2[a,]$assistTackler) == closest_g_all$jerseyNumber) { #%in% gnrs
-              tklScore <- 2
+      if(!is.na(all_punts2[a,]$tackler)) {
+        if(tkl_num(all_punts2[a,]$tackler) == closest_g_all$jerseyNumber) {
+          if(tkl_num(play$tackler) %in% tkl_num(play$missedTackler)) {
+            tklScore <- 0.25
+          } else {
+            tklScore <- 1
+          }
+        } else if(!is.na(all_punts2[a,]$assistTackler)) {
+          if(tkl_num(all_punts2[a,]$assistTackler) == closest_g_all$jerseyNumber) {
+            if(tkl_num(play$assistTackler) %in% tkl_num(play$missedTackler)) {
+              tklScore <- 0.25
             } else {
-              tklScore <- 0
+              tklScore <- 0.5
             }
           } else {
             tklScore <- 0
@@ -552,6 +531,8 @@ for(a in 1:nrow(all_punts2)) {
         } else {
           tklScore <- 0
         }
+      } else {
+        tklScore <- 0
       }
       
       r_info_fc1 <- your_punt_returner(all_punts2[a,]$gameId, all_punts2[a,]$playId, all_punts2[a,]$returnerId,
@@ -561,9 +542,7 @@ for(a in 1:nrow(all_punts2)) {
                                 r_info_fc1, all_punts2[a,])
         dtr_fc1 <- dtr_fc1[!duplicated(dtr_fc1$displayName),]
         fc1 <- dtr_fc1 %>% filter(jerseyNumber == closest_g_all$jerseyNumber) %>% filter(team != r_info_all$team)
-        #%in% gnrs
-        #minretdisp_fc <- fc1[which.min(fc1$dist_retdisp),]
-        frstCntctScore <- ifelse(fc1$dist_retdisp <= 1.5, 1, 0) #minretdisp_fc$dist_retdisp 
+        frstCntctScore <- ifelse(fc1$dist_retdisp <= 1.5, 1, 0) 
       } else {
         frstCntctScore <- 0
       }
@@ -577,32 +556,201 @@ for(a in 1:nrow(all_punts2)) {
   }
   
 }
-#figure out how to do with all gunners? if time
-#for/if loops looping through gunners and seeing if that gunner closest, run through all gunners in that play
-#create fn to calculate chaos for any guy :
+
+chaos_data <- pr_modset %>% mutate(CHAOSscore = proximityScore + tklScore + angleScore + frstCntctScore)
+
 chaos_calc <- function(play) {
+  r_info_calc <- your_punt_returner(play$gameId, play$playId, play$returnerId,
+                                   punt_rec2)
   
+  if(nrow(r_info_calc) != 0) {
+    
+    dtr_calc <- disps_to_ret(your_punt_all(play$gameId, play$playId, punt_rec2), 
+                            r_info_calc, play)
+    r_info_calc2 <- your_punt_returner(play$gameId, play$playId, play$returnerId,
+                                      post_pr)
+    gnrs <- gunnerNum(play$gunners)
+    gunner_ret_disps_calc <- dtr_calc %>% filter(jerseyNumber %in% gnrs) %>%
+      filter(team != r_info_calc$team)
+    if(nrow(gunner_ret_disps_calc) != 0) {
+      CHAOS <- c()
+      for(b in 1:nrow(gunner_ret_disps_calc)) {
+        
+        closest_def_calc <- dtr_calc %>% filter(team != r_info_calc$team) %>% filter(displayName != "football")
+        closest_def_calc <- closest_def_calc[which.min(closest_def_calc$dist_retdisp),]
+        
+        g_calc <- gunner_ret_disps_calc[b,]
+        
+        proximityScore = round(
+          ifelse(g_calc$dist_retdisp <= 5, 3, 
+                 ifelse(g_calc$dist_retdisp <= 15, 
+                        2 + ((15-g_calc$dist_retdisp)*(1/(15-5))),
+                        ifelse(g_calc$dist_retdisp <= 30, 
+                               1 + ((30-g_calc$dist_retdisp)*(1/(30-15))),
+                               ((play$kickLength-g_calc$dist_retdisp)*
+                                  (1/(play$kickLength-30))) )))
+          , 2 )
+        
+        angleScore <- ifelse(
+          (closest_def_calc$displayName == g_calc$displayName & g_calc$dist_retdisp <= 30),
+                             ifelse(
+                               (abs(r_info_calc2$o - r_info_calc$o) >= 45 & 
+                                  abs(r_info_calc2$o - r_info_calc$o) <= 315) | 
+                                      ((r_info_calc2$s - r_info_calc$s) <= 0.5) , 1, 0), 0)
+        
+        tklScore <- 0
+        if(!is.na(play$missedTackler)) {
+          for(n in 1:length(tkl_num(play$missedTackler))) {
+            if(tkl_num(play$missedTackler)[n] == g_calc$jerseyNumber) {
+              tklScore <- 0.25
+            } 
+          }
+        }
+        if(!is.na(play$tackler)) {
+          if(tkl_num(play$tackler) == g_calc$jerseyNumber) { 
+            if(tkl_num(play$tackler) %in% tkl_num(play$missedTackler)) {
+              tklScore <- 0.5
+            } else {
+              tklScore <- 1
+            }
+          } else if(!is.na(play$assistTackler)) {
+            if(tkl_num(play$assistTackler) == g_calc$jerseyNumber) { 
+              if(tkl_num(play$assistTackler) %in% tkl_num(play$missedTackler)) {
+                tklScore <- 0.5
+              } else {
+                tklScore <- 0.75
+              }
+            } 
+          }
+        }
+        
+        r_info_fccalc <- your_punt_returner(play$gameId, play$playId, play$returnerId,
+                                         frst_cntct)
+        if(nrow(r_info_fccalc) != 0) {
+          dtr_fccalc <- disps_to_ret(your_punt_all(play$gameId, play$playId, frst_cntct), 
+                                  r_info_fccalc, play)
+          dtr_fccalc <- dtr_fccalc[!duplicated(dtr_fccalc$displayName),]
+          fccalc <- dtr_fccalc %>% filter(jerseyNumber == g_calc$jerseyNumber) %>% filter(team != r_info_calc$team)
+
+          frstCntctScore <- ifelse(fccalc$dist_retdisp <= 1.5, 1, 0)
+        } else {
+          frstCntctScore <- 0
+        }
+        
+        CHAOS <- rbind(CHAOS, cbind(g_calc, "punt_ret_yds" = play$kickReturnYardage,
+                                    proximityScore, tklScore, angleScore, frstCntctScore, 
+                                    "CHAOSscore" = proximityScore + tklScore + angleScore + frstCntctScore))
+        
+      }
+    }
+  }
+  
+  return(CHAOS)
 }
 
+chaos_calc(play)
+
+tm <- Sys.time()
+allCHAOS <- c()
+for(a in 1:nrow(all_punts2)) {
+  allCHAOS <- rbind(allCHAOS, chaos_calc(all_punts2[a,]))
+}
+head(allCHAOS)
+Sys.time() - tm
+
+#There can only be one player do any of the factors except proximity, so proximity to 3, all others 0-1
+mean(allCHAOS$angleScore)
+sum(allCHAOS$tklScore == 0.25)
+mean(allCHAOS$tklScore)
+mean(allCHAOS$proximityScore)
+mean(allCHAOS$frstCntctScore)
 
 #analysis/evaluation
-chaos_data <- pr_modset %>% mutate(ChaosScore = proximityScore + angleScore + tklScore + frstCntctScore)
-#closest gunners on each play
 #Closeness Score (proximity) + Hit Score (tkl) + Angle + stopping Score (angle) + Opening contact score (frstcntc) Score
-chaos_data %>% filter(gameId == all_punts2[863,]$gameId, playId == all_punts2[863,]$playId)
+allCHAOS %>% filter(gameId == all_punts2[863,]$gameId, playId == all_punts2[863,]$playId)
 #result data could be skewed by instances in data where maybe immediate tackles not counting first contact?
 
-punt_ret_model <- lm(kickReturnYardage ~ ChaosScore, data = chaos_data)
+allCHAOS %>% group_by(displayName) %>% summarise(obs = n(), chaos_avg = mean(CHAOSscore)) %>% 
+  filter(displayName == "J.T. Gray" | displayName == "Matthew Slater" | displayName == "Taiwan Jones")
+#'check past good gunners'
+
+table(allCHAOS$CHAOSscore)
+mean(allCHAOS$CHAOSscore)
+sd(allCHAOS$CHAOSscore)
+mean(allCHAOS$punt_ret_yds)
+
+( allCHAOS %>% filter(CHAOSscore > mean(allCHAOS$CHAOSscore)) %>% 
+    filter(punt_ret_yds>=mean(allCHAOS$punt_ret_yds)) %>% nrow() ) / (allCHAOS %>% filter(CHAOSscore > mean(allCHAOS$CHAOSscore))) %>% nrow #31.03%
+  
+( allCHAOS %>% filter(CHAOSscore < mean(allCHAOS$CHAOSscore)) %>% 
+  filter(punt_ret_yds>=mean(allCHAOS$punt_ret_yds)) %>% nrow() ) / (allCHAOS %>% filter(CHAOSscore < mean(allCHAOS$CHAOSscore)) %>% nrow()) #47.14%
+#there are a few hundred more observations under the mean
+
+punt_ret_model <- lm(punt_ret_yds ~ (1/CHAOSscore), data = allCHAOS)
 summary(punt_ret_model)
 
-boxplot(chaos_data$ChaosScore)
-ggplot(data = chaos_data, aes(x = ChaosScore, y = kickReturnYardage)) + 
+boxplot(allCHAOS$CHAOSscore)
+
+ggplot(data = chaos_data, aes(x = CHAOSscore, y = kickReturnYardage)) + 
   geom_point(aes(color = proximityScore)) + 
   geom_abline(intercept = punt_ret_model$coefficients[1], slope = punt_ret_model$coefficients[2], color = "blue")
+#merely the closest gunner
 
-all_punts2[863,] #mcmanis gets a 3.32/8, patterson gets 1smtnish/8
-#do we really weight tackling so much?
-#make asterisk - scores best used seperately? - person that does everything right except tackle/contact: 4/8
+ggplot(data = allCHAOS, aes(x = CHAOSscore, y = punt_ret_yds)) + 
+  geom_point(aes(color = proximityScore)) + geom_vline(xintercept = mean(allCHAOS$CHAOSscore))
+  #geom_abline(intercept = punt_ret_model$coefficients[1], slope = punt_ret_model$coefficients[2], color = "blue")
+
+#how many perfect scores vs who perfect scores
+allCHAOS %>% filter(CHAOSscore == 6)
+
+
+#muffed/fair catch proximity scores
+prx_mfd_fc <- c()
+for(d in 1:nrow(all_other)) {
+  r_info_o <- your_punt_returner(all_other[d,]$gameId, all_other[d,]$playId, all_other[d,]$returnerId,
+                                    pnt_fcmfd)
+  
+  if(nrow(r_info_o) != 0) {
+    
+    dtr_o <- disps_to_ret(your_punt_all(all_other[d,]$gameId, all_other[d,]$playId, pnt_fcmfd), 
+                             r_info_o, all_other[d,])
+    
+    gnrsO <- gunnerNum(all_other[d,]$gunners)
+    gunner_ret_disps_o <- dtr_o %>% filter(jerseyNumber %in% gnrsO) %>%
+      filter(team != r_info_o$team)
+    if(nrow(gunner_ret_disps_o) != 0) {
+
+      for(b in 1:nrow(gunner_ret_disps_o)) {
+        
+        g_calc_o <- gunner_ret_disps_o[b,]
+        
+        proximityScore = round(
+          ifelse(g_calc_o$dist_retdisp <= 5, 3, 
+                 ifelse(g_calc_o$dist_retdisp <= 15, 
+                        2 + ((15-g_calc_o$dist_retdisp)*(1/(15-5))),
+                        ifelse(g_calc_o$dist_retdisp <= 30, 
+                               1 + ((30-g_calc_o$dist_retdisp)*(1/(30-15))),
+                               ((all_other[d,]$kickLength-g_calc_o$dist_retdisp)*
+                                  (1/(all_other[d,]$kickLength-30))) )))
+          , 2 )
+        
+        
+        prx_mfd_fc <- rbind(prx_mfd_fc, cbind(g_calc_o,
+                           proximityScore))
+      }
+    }
+  }
+}
+
+prx_mfd_fc %>% filter(displayName == "Matthew Slater") %>% 
+  summarise(avg_ps = mean(proximityScore))
+
+prx_mfd_fc %>% group_by(displayName) %>% summarise(rets = n(), prxtot = sum(proximityScore)) %>% 
+  filter(rets >= 10) %>% mutate(avg_ps = prxtot/rets) %>% arrange(desc(avg_ps))
+rm(tmp)
+#usama young mentioned TAiwan jones?
+
+mean(prx_mfd_fc$proximityScore, na.rm = T)
 
 #--------------------------------------------------------------------------------------------------------Peppers ex.
 

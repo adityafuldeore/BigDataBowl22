@@ -1,7 +1,7 @@
 # BigDataBowl22
 # Aditya Fuldeore & Andrew Stasell
 
-To put all the files in order like in "AllReportCode:
+To put all the files in order like in "AllReportCode":
 1. Set-up and functions
 2. Data Filtration
 3. Four Factors analysis

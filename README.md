@@ -1,9 +1,10 @@
 # BigDataBowl22
+# Aditya Fuldeore & Andrew Stasell
 
 To put all the files in order:
 1. Set-up and functions
 2. Data Filtration
-3. CHAOS four factors
+3. Four Factors analysis
 4. CHAOS calculation
 5. CHAOS analysis
 
